@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: zeotap_user
+      POSTGRES_PASSWORD: zeotap_password
+      POSTGRES_DB: ims_db
+    ports:
+      - "5432:5432"
+
+  mongodb:
+    image: mongo:6.0
+    ports:
+      - "27017:27017"
