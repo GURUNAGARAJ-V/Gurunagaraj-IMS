@@ -12,7 +12,7 @@
 * **👤 Candidate Name:** V Gurunagaraj
 * **🧠 Background:** Civil Engineer | Eco-Conscious Infrastructure & IoT Innovator
 * **📧 Contact:** vgurunagaraj5@gmail.com | 9686622236
-* **💼 LinkedIn:** linkedin.com/in/vgurunagarajcivilengineer
+* **💼 LinkedIn:** https://www.linkedin.com/in/vgurunagarajcivilengineer/
 
 ---
 
