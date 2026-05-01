@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IMS Architecture & Strategy Report | Zeotap</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        /* Premium Background with subtle technical dot-grid */
+        body { 
+            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif; 
+            background-color: #f8fafc;
+            background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
+            background-size: 20px 20px;
+            color: #0f172a; 
+            -webkit-font-smoothing: antialiased;
+        }
+        
+        /* Glassmorphism utilities */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            box-shadow: 0 10px 40px -10px rgba(0,0,0,0.05);
+        }
+
+        .chart-container { position: relative; width: 100%; max-width: 800px; margin-left: auto; margin-right: auto; height: 350px; max-height: 400px; }
+        
+        /* Navigation Buttons */
+        .nav-btn { position: relative; overflow: hidden; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .nav-btn::before { content: ''; position: absolute; top: 0; left: 0; width: 3px; height: 100%; background: #0ea5e9; transform: scaleY(0); transition: transform 0.3s ease; transform-origin: left; }
+        .nav-btn.active { background: rgba(14, 165, 233, 0.08); color: #0369a1; font-weight: 600; }
+        .nav-btn.active::before { transform: scaleY(1); }
+        .nav-btn:active { transform: scale(0.97); }
+
+        /* Architecture Nodes */
+        .arch-node { transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        .arch-node:hover { transform: translateY(-4px) scale(1.02); box-shadow: 0 15px 30px -5px rgba(14, 165, 233, 0.15); cursor: pointer; border-color: #38bdf8; background: rgba(255,255,255,0.95); }
+        .arch-node:active { transform: scale(0.95); } 
+        .arch-active { border-color: #0ea5e9; background: #f0f9ff; box-shadow: inset 0 0 0 1px #0ea5e9; }
+        
+        /* Animations */
+        @keyframes fadeSlideUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade-in { animation: fadeSlideUp 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body class="flex flex-col md:flex-row min-h-screen">
+
+    <!-- Sidebar Navigation (Glass) -->
+    <nav class="w-full md:w-72 glass-card flex flex-col p-6 shadow-2xl z-20 md:h-screen md:sticky top-0 border-r border-white/40">
+        <div class="mb-12 flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-sky-400 flex items-center justify-center shadow-lg shadow-blue-500/30">
+                <span class="text-white font-bold text-xl font-mono">Z</span>
+            </div>
+            <div>
+                <h1 class="text-xl font-extrabold text-slate-800 tracking-tight">zeotap</h1>
+                <p class="text-[10px] text-slate-500 uppercase tracking-[0.2em] font-semibold">IMS Architecture</p>
+            </div>
+        </div>
+
+        <div class="flex flex-col space-y-1">
+            <button onclick="triggerHaptic(15); showSection('summary', this)" class="nav-btn active text-left px-5 py-3.5 rounded-xl hover:bg-slate-100/50 text-slate-600">Executive Summary</button>
+            <button onclick="triggerHaptic(15); showSection('architecture', this)" class="nav-btn text-left px-5 py-3.5 rounded-xl hover:bg-slate-100/50 text-slate-600">Topology & Flow</button>
+            <button onclick="triggerHaptic(15); showSection('analytics', this)" class="nav-btn text-left px-5 py-3.5 rounded-xl hover:bg-slate-100/50 text-slate-600">Performance Metrics</button>
+            <button onclick="triggerHaptic(15); showSection('philosophy', this)" class="nav-btn text-left px-5 py-3.5 rounded-xl hover:bg-slate-100/50 text-slate-600">Design Philosophy</button>
+            <div class="h-px w-full bg-slate-200 my-2"></div>
+            <button onclick="triggerHaptic(20); showSection('simulation', this)" class="nav-btn text-left px-5 py-3.5 rounded-xl hover:bg-emerald-50/50 text-emerald-600 font-semibold flex items-center gap-2 group">
+                <span class="text-emerald-500 group-hover:animate-pulse">▶</span> Live Simulation
+            </button>
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 p-6 md:p-14 overflow-y-auto relative z-10">
+        
+        <!-- SECTION 1: Executive Summary -->
+        <section id="summary" class="content-section block animate-fade-in max-w-5xl mx-auto">
+            <div class="inline-block px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-bold tracking-wider mb-4 uppercase">System Overview</div>
+            <h2 class="text-4xl font-extrabold text-slate-900 mb-6 tracking-tight">Mission-Critical Incident Management</h2>
+            <p class="text-xl text-slate-600 mb-10 leading-relaxed font-light">
+                An asynchronous, highly-available control plane designed to ingest high-volume telemetry signals, intelligently debounce anomalies, and orchestrate strict Root Cause Analysis (RCA) workflows.
+            </p>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+                <div class="glass-card p-8 rounded-3xl border-t-4 border-t-sky-500 hover:shadow-xl transition-shadow duration-300">
+                    <div class="text-4xl mb-4 bg-sky-50 w-16 h-16 rounded-2xl flex items-center justify-center">🚀</div>
+                    <h3 class="font-bold text-xl mb-2 text-slate-800">High Throughput</h3>
+                    <p class="text-slate-500 text-sm leading-relaxed">Engineered for bursts of 10,000 signals/sec utilizing asynchronous background tasks and Token-Bucket rate limiting.</p>
+                </div>
+                <div class="glass-card p-8 rounded-3xl border-t-4 border-t-emerald-500 hover:shadow-xl transition-shadow duration-300">
+                    <div class="text-4xl mb-4 bg-emerald-50 w-16 h-16 rounded-2xl flex items-center justify-center">🛡️</div>
+                    <h3 class="font-bold text-xl mb-2 text-slate-800">Resilient Sinks</h3>
+                    <p class="text-slate-500 text-sm leading-relaxed">Decoupled persistence utilizing PostgreSQL for strictly transactional Work Items and MongoDB as an immutable Data Lake.</p>
+                </div>
+                <div class="glass-card p-8 rounded-3xl border-t-4 border-t-indigo-500 hover:shadow-xl transition-shadow duration-300">
+                    <div class="text-4xl mb-4 bg-indigo-50 w-16 h-16 rounded-2xl flex items-center justify-center">✅</div>
+                    <h3 class="font-bold text-xl mb-2 text-slate-800">Strict Workflow</h3>
+                    <p class="text-slate-500 text-sm leading-relaxed">State Pattern implementation mathematically guarantees mandatory RCA documentation before MTTR timers stop.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 2: Interactive Architecture -->
+        <section id="architecture" class="content-section hidden animate-fade-in max-w-5xl mx-auto">
+            <div class="inline-block px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-xs font-bold tracking-wider mb-4 uppercase">System Topology</div>
+            <h2 class="text-4xl font-extrabold text-slate-900 mb-6 tracking-tight">Interactive Data Flow</h2>
+            <p class="text-xl text-slate-600 mb-10 leading-relaxed font-light">
+                Map the journey of a telemetry signal. Tap any component in the pipeline to reveal technical specifications and architectural justifications.
+            </p>
+
+            <div class="glass-card p-10 rounded-3xl">
+                <div class="grid grid-cols-1 md:grid-cols-5 gap-6 items-center text-center relative z-10">
+                    <div class="arch-node border border-slate-200/60 p-6 rounded-2xl bg-white/50 flex flex-col items-center justify-center h-full shadow-sm" onclick="triggerHaptic(20); updateArchDetails('ingest')">
+                        <div class="text-4xl mb-3 filter drop-shadow-sm">📡</div>
+                        <div class="font-bold text-sm text-slate-700">Ingestion API</div>
+                    </div>
+                    <div class="text-slate-300 text-3xl hidden md:flex justify-center items-center font-light">➔</div>
+                    <div class="arch-node border border-slate-200/60 p-6 rounded-2xl bg-white/50 flex flex-col items-center justify-center h-full shadow-sm" onclick="triggerHaptic(20); updateArchDetails('redis')">
+                        <div class="text-4xl mb-3 filter drop-shadow-sm">⚡</div>
+                        <div class="font-bold text-sm text-slate-700">Redis Debouncer</div>
+                    </div>
+                    <div class="text-slate-300 text-3xl hidden md:flex justify-center items-center font-light">➔</div>
+                    <div class="flex flex-col space-y-4 w-full">
+                        <div class="arch-node border border-slate-200/60 p-5 rounded-2xl bg-white/50 flex flex-col items-center justify-center shadow-sm" onclick="triggerHaptic(20); updateArchDetails('postgres')">
+                            <div class="text-3xl mb-2 filter drop-shadow-sm">🗄️</div>
+                            <div class="font-bold text-sm text-slate-700">PostgreSQL</div>
+                        </div>
+                        <div class="arch-node border border-slate-200/60 p-5 rounded-2xl bg-white/50 flex flex-col items-center justify-center shadow-sm" onclick="triggerHaptic(20); updateArchDetails('mongo')">
+                            <div class="text-3xl mb-2 filter drop-shadow-sm">🌊</div>
+                            <div class="font-bold text-sm text-slate-700">MongoDB</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 3: Performance Analytics -->
+        <section id="analytics" class="content-section hidden animate-fade-in max-w-5xl mx-auto">
+            <div class="inline-block px-3 py-1 bg-emerald-100 text-emerald-700 rounded-full text-xs font-bold tracking-wider mb-4 uppercase">Metrics</div>
+            <h2 class="text-4xl font-extrabold text-slate-900 mb-6 tracking-tight">Debouncing Efficiency</h2>
+            <p class="text-xl text-slate-600 mb-10 leading-relaxed font-light">
+                Visualizing the critical path. The chart demonstrates how the Redis layer compresses massive signal storms into singular, actionable Work Items, preventing database write-locks.
+            </p>
+
+            <div class="glass-card p-8 rounded-3xl mb-6">
+                <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+                    <h3 class="font-bold text-slate-800 text-xl tracking-tight">Signal Compression Ratio</h3>
+                    <select id="dataScenario" onchange="triggerHaptic(10); updateChart()" class="bg-white/80 border border-slate-200 text-slate-700 text-sm rounded-xl focus:ring-sky-500 focus:border-sky-500 block p-2.5 shadow-sm outline-none backdrop-blur-sm cursor-pointer">
+                        <option value="spike">Scenario: System Outage (Spike)</option>
+                        <option value="steady">Scenario: Intermittent Degradation</option>
+                    </select>
+                </div>
+                
+                <div class="chart-container">
+                    <canvas id="debouncingChart"></canvas>
+                </div>
+                <div class="mt-6 p-4 bg-slate-50/50 rounded-xl border border-slate-100">
+                    <p id="chartDescription" class="text-sm text-slate-600 text-center font-medium">Displaying simulated data: 100 raw signals arriving within a 10-second window result in exactly 1 incident generated.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 4: Design Philosophy -->
+        <section id="philosophy" class="content-section hidden animate-fade-in max-w-5xl mx-auto">
+            <div class="inline-block px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-bold tracking-wider mb-4 uppercase">Methodology</div>
+            <h2 class="text-4xl font-extrabold text-slate-900 mb-6 tracking-tight">Physical to Digital Resilience</h2>
+            <p class="text-xl text-slate-600 mb-10 leading-relaxed font-light">
+                True resilience transcends software. This architecture applies foundational principles from physical infrastructure and IoT sensor networks to distributed cloud environments.
+            </p>
+
+            <div class="glass-card p-10 rounded-3xl">
+                <div class="space-y-12">
+                    <div class="relative group">
+                        <div class="absolute -left-4 top-0 bottom-0 w-1 bg-slate-200 group-hover:bg-sky-400 transition-colors rounded-full"></div>
+                        <h4 class="font-extrabold text-slate-800 text-xl mb-3 flex items-center gap-3">
+                            <span class="bg-sky-100 text-sky-600 p-2 rounded-lg text-sm">01</span> 
+                            Signal Parsing & Event Detection
+                        </h4>
+                        <div class="grid md:grid-cols-2 gap-6 ml-2">
+                            <div class="bg-white/60 p-5 rounded-2xl border border-slate-100 shadow-sm">
+                                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Physical Principle (IoT)</p>
+                                <p class="text-sm text-slate-600 leading-relaxed">Processing rapid electrical resistance fluctuations from conductive fibers in smart concrete to instantly detect micro-cracks before structural failure.</p>
+                            </div>
+                            <div class="bg-white/60 p-5 rounded-2xl border border-slate-100 shadow-sm">
+                                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Cloud Execution (IMS)</p>
+                                <p class="text-sm text-slate-600 leading-relaxed">Ingesting rapid JSON error payloads from distributed caches to instantly detect micro-service failures via non-blocking API endpoints.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="relative group">
+                        <div class="absolute -left-4 top-0 bottom-0 w-1 bg-slate-200 group-hover:bg-emerald-400 transition-colors rounded-full"></div>
+                        <h4 class="font-extrabold text-slate-800 text-xl mb-3 flex items-center gap-3">
+                            <span class="bg-emerald-100 text-emerald-600 p-2 rounded-lg text-sm">02</span> 
+                            Noise Reduction Mechanics
+                        </h4>
+                        <div class="grid md:grid-cols-2 gap-6 ml-2">
+                            <div class="bg-white/60 p-5 rounded-2xl border border-slate-100 shadow-sm">
+                                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Physical Principle (IoT)</p>
+                                <p class="text-sm text-slate-600 leading-relaxed">Applying debouncing algorithms to hardware microcontrollers to filter out temporary physical vibrations so alarms don't false-trigger.</p>
+                            </div>
+                            <div class="bg-white/60 p-5 rounded-2xl border border-slate-100 shadow-sm">
+                                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Cloud Execution (IMS)</p>
+                                <p class="text-sm text-slate-600 leading-relaxed">Utilizing Redis `SET NX EX` atomic operations to debounce hundreds of identical network errors into a single, actionable P0 alert.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="relative group">
+                        <div class="absolute -left-4 top-0 bottom-0 w-1 bg-slate-200 group-hover:bg-indigo-400 transition-colors rounded-full"></div>
+                        <h4 class="font-extrabold text-slate-800 text-xl mb-3 flex items-center gap-3">
+                            <span class="bg-indigo-100 text-indigo-600 p-2 rounded-lg text-sm">03</span> 
+                            Cascading Failure Prevention
+                        </h4>
+                        <div class="grid md:grid-cols-2 gap-6 ml-2">
+                            <div class="bg-white/60 p-5 rounded-2xl border border-slate-100 shadow-sm">
+                                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Physical Principle (Civil)</p>
+                                <p class="text-sm text-slate-600 leading-relaxed">Designing multi-layer geotechnical foundation liners to isolate toxic seepage, preventing total groundwater contamination.</p>
+                            </div>
+                            <div class="bg-white/60 p-5 rounded-2xl border border-slate-100 shadow-sm">
+                                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Cloud Execution (IMS)</p>
+                                <p class="text-sm text-slate-600 leading-relaxed">Designing database retry logic with exponential backoff and strict rate limiters to prevent buffer overflows from contaminating stable services.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 5: Live Simulation -->
+        <section id="simulation" class="content-section hidden animate-fade-in max-w-5xl mx-auto">
+            <div class="flex items-center gap-3 mb-4">
+                <span class="relative flex h-3 w-3">
+                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+                </span>
+                <div class="px-3 py-1 bg-slate-800 text-emerald-400 rounded-full text-xs font-bold tracking-wider uppercase shadow-sm border border-slate-700">Live Engine</div>
+            </div>
+            
+            <h2 class="text-4xl font-extrabold text-slate-900 mb-6 tracking-tight">System Simulation</h2>
+            <p class="text-xl text-slate-600 mb-8 leading-relaxed font-light">
+                Experience the debouncing logic in real-time. Fire signals and watch how the Redis layer filters noise, routing raw data to the Lake while creating only unique tickets in the Source of Truth.
+            </p>
+
+            <div class="flex flex-wrap gap-4 mb-8 glass-card p-5 rounded-3xl">
+                <button onclick="triggerHaptic(30); simulateSignal('RDBMS_NODE_01', 'P0_CRITICAL')" class="bg-gradient-to-b from-red-500 to-red-600 hover:from-red-400 hover:to-red-500 text-white px-6 py-3 rounded-xl shadow-lg shadow-red-500/30 transition-all active:scale-95 flex items-center font-bold text-sm">
+                    <span class="mr-2 text-xl drop-shadow-md">🔥</span> Fire DB Signal
+                </button>
+                <button onclick="triggerHaptic([20, 50, 20]); simulateBurst('CACHE_CLUSTER_05', 'P2_WARNING', 10)" class="bg-gradient-to-b from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-white px-6 py-3 rounded-xl shadow-lg shadow-amber-500/30 transition-all active:scale-95 flex items-center font-bold text-sm text-amber-950">
+                    <span class="mr-2 text-xl drop-shadow-md">⚡</span> Fire Burst (x10)
+                </button>
+                <button onclick="triggerHaptic(15); resetSimulation()" class="bg-white hover:bg-slate-50 text-slate-700 px-6 py-3 rounded-xl shadow-sm border border-slate-200 transition-all active:scale-95 flex items-center ml-auto font-bold text-sm">
+                    <span class="mr-2 text-xl">🔄</span> Reset
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Data Lake Terminal -->
+                <div class="glass-card p-5 rounded-3xl flex flex-col h-[450px]">
+                    <div class="flex justify-between items-center mb-3 pb-3 border-b border-slate-200/60">
+                        <h3 class="font-bold text-slate-800 flex items-center gap-2"><span class="text-2xl">🌊</span> MongoDB</h3>
+                        <span id="mongoCount" class="bg-slate-100 text-slate-600 text-xs px-3 py-1 rounded-full font-mono font-bold shadow-inner">0 Data</span>
+                    </div>
+                    <div id="mongoLogs" class="overflow-y-auto flex-1 bg-[#0f172a] rounded-2xl p-4 text-[11px] font-mono text-emerald-400 space-y-1.5 shadow-[inset_0_2px_10px_rgba(0,0,0,0.5)] border border-slate-800 leading-relaxed">
+                        <div class="text-slate-500 text-center mt-12 text-sm italic">Awaiting telemetry...</div>
+                    </div>
+                </div>
+
+                <!-- Redis Cache Glass -->
+                <div class="glass-card p-5 rounded-3xl flex flex-col h-[450px] relative overflow-hidden bg-gradient-to-b from-yellow-50/50 to-white/50">
+                    <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-yellow-300 to-amber-500"></div>
+                    <div class="flex justify-between items-center mb-3 pb-3 border-b border-yellow-200/50">
+                        <h3 class="font-bold text-slate-800 flex items-center gap-2"><span class="text-2xl">⚡</span> Redis</h3>
+                    </div>
+                    <div id="redisState" class="overflow-y-auto flex-1 space-y-3 p-1">
+                        <div class="text-slate-400 text-sm italic text-center mt-12">Cache is empty</div>
+                    </div>
+                </div>
+
+                <!-- PostgreSQL Tickets -->
+                <div class="glass-card p-5 rounded-3xl flex flex-col h-[450px] relative overflow-hidden bg-gradient-to-b from-blue-50/50 to-white/50">
+                    <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-400 to-sky-500"></div>
+                    <div class="flex justify-between items-center mb-3 pb-3 border-b border-blue-200/50">
+                        <h3 class="font-bold text-slate-800 flex items-center gap-2"><span class="text-2xl">🗄️</span> PostgreSQL</h3>
+                        <span id="pgCount" class="bg-blue-100 text-blue-700 text-xs px-3 py-1 rounded-full font-mono font-bold shadow-inner border border-blue-200">0 Tickets</span>
+                    </div>
+                    <div id="pgTickets" class="overflow-y-auto flex-1 space-y-3 p-1">
+                        <div class="text-slate-400 text-sm italic text-center mt-12">No active incidents</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Premium Modal -->
+    <div id="arch-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-900/30 backdrop-blur-xl opacity-0 transition-opacity duration-300" onclick="closeArchModal()">
+        <div id="arch-details-content" class="bg-white/90 backdrop-blur-2xl p-10 rounded-[2rem] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)] max-w-lg w-full transform scale-95 transition-all duration-300 m-4 relative border border-white" onclick="event.stopPropagation()">
+            <button onclick="triggerHaptic(10); closeArchModal()" class="absolute top-6 right-6 text-slate-400 hover:text-slate-800 transition bg-slate-100 hover:bg-slate-200 rounded-full w-10 h-10 flex items-center justify-center font-bold">
+                ✕
+            </button>
+            <div id="arch-details-body"></div>
+        </div>
+    </div>
+
+    <script>
+        // --- Tactile Haptic Feedback ---
+        function triggerHaptic(pattern) {
+            if (typeof navigator !== 'undefined' && navigator.vibrate) {
+                navigator.vibrate(pattern);
+            }
+        }
+
+        function showSection(sectionId, btnElement) {
+            document.querySelectorAll('.content-section').forEach(el => el.classList.add('hidden'));
+            document.getElementById(sectionId).classList.remove('hidden');
+            
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('active', 'bg-slate-100/50', 'text-slate-800');
+            });
+            btnElement.classList.add('active');
+        }
+
+        const archData = {
+            ingest: {
+                title: "FastAPI Ingestion Endpoint",
+                tech: "Python, FastAPI, BackgroundTasks",
+                desc: "Acts as the high-throughput gateway. Uses asynchronous background tasks to immediately return a '202 Accepted' response, preventing the API from blocking during heavy signal storms. Includes a token-bucket rate limiter to reject traffic beyond 5000 req/sec."
+            },
+            redis: {
+                title: "Redis Debouncer",
+                tech: "Redis, Atomic Operations (SET NX)",
+                desc: "The critical hot-path filter. When a signal arrives, it attempts to set a key 'debounce:{component_id}' that expires in 10 seconds. If the key already exists, the signal is dropped from the Work Item queue. Operates in pure O(1) time complexity."
+            },
+            postgres: {
+                title: "PostgreSQL Source of Truth",
+                tech: "PostgreSQL, asyncpg, Tenacity",
+                desc: "Stores strictly formatted Work Items. This is where the State Pattern resides, ensuring incidents move from OPEN to CLOSED only when a valid JSON Root Cause Analysis (RCA) object is attached. Calculates precise MTTR metrics."
+            },
+            mongo: {
+                title: "MongoDB Data Lake",
+                tech: "MongoDB, Motor (Async)",
+                desc: "The immutable audit log. Every single signal, whether debounced or not, is asynchronously dumped here. Enables historical timeseries aggregations and deep-dive post-mortems without locking the relational database."
+            }
+        };
+
+        function updateArchDetails(component) {
+            const data = archData[component];
+            const modal = document.getElementById('arch-modal');
+            const content = document.getElementById('arch-details-content');
+            
+            document.getElementById('arch-details-body').innerHTML = `
+                <div class="flex flex-col mb-6">
+                    <span class="text-xs bg-slate-100 text-slate-600 px-3 py-1 rounded-full font-mono w-max border border-slate-200 mb-3 tracking-wider uppercase font-bold">${data.tech}</span>
+                    <h4 class="font-extrabold text-slate-900 text-3xl tracking-tight leading-tight">${data.title}</h4>
+                </div>
+                <p class="text-slate-600 leading-relaxed text-lg font-light">${data.desc}</p>
+            `;
+            
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                content.classList.remove('scale-95');
+                content.classList.add('scale-100');
+            }, 10);
+        }
+
+        function closeArchModal() {
+            const modal = document.getElementById('arch-modal');
+            const content = document.getElementById('arch-details-content');
+            
+            modal.classList.add('opacity-0');
+            content.classList.remove('scale-100');
+            content.classList.add('scale-95');
+            setTimeout(() => modal.classList.add('hidden'), 300);
+        }
+
+        let debounceChart;
+        const chartDatasets = {
+            spike: {
+                labels: ['Sec 1', 'Sec 2', 'Sec 3', 'Sec 4', 'Sec 5', 'Sec 6', 'Sec 7', 'Sec 8', 'Sec 9', 'Sec 10'],
+                raw: [120, 450, 800, 200, 50, 10, 5, 0, 0, 0],
+                processed: [1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                desc: "During a sudden database outage, 1,635 raw errors were fired in 10 seconds. Redis successfully debounced this into exactly 1 actionable Work Item ticket."
+            },
+            steady: {
+                labels: ['Min 1', 'Min 2', 'Min 3', 'Min 4', 'Min 5', 'Min 6', 'Min 7', 'Min 8', 'Min 9', 'Min 10'],
+                raw: [5, 12, 8, 4, 15, 6, 2, 9, 11, 4],
+                processed: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+                desc: "Under steady, intermittent failure conditions, the 10-second debounce window groups closely related errors, reducing ticket noise by over 80%."
+            }
+        };
+
+        function initChart() {
+            const ctx = document.getElementById('debouncingChart').getContext('2d');
+            let gradientBlue = ctx.createLinearGradient(0, 0, 0, 400);
+            gradientBlue.addColorStop(0, 'rgba(14, 165, 233, 0.8)');
+            gradientBlue.addColorStop(1, 'rgba(14, 165, 233, 0.1)');
+
+            debounceChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: chartDatasets.spike.labels,
+                    datasets: [
+                        {
+                            label: 'Raw Signals Ingested',
+                            data: chartDatasets.spike.raw,
+                            backgroundColor: 'rgba(203, 213, 225, 0.6)', 
+                            borderRadius: 6,
+                            borderWidth: 0
+                        },
+                        {
+                            label: 'Work Items Created',
+                            data: chartDatasets.spike.processed,
+                            backgroundColor: gradientBlue,
+                            borderColor: '#0ea5e9',
+                            borderWidth: 3,
+                            type: 'line',
+                            tension: 0.4,
+                            fill: true,
+                            pointBackgroundColor: '#fff',
+                            pointBorderColor: '#0ea5e9',
+                            pointBorderWidth: 2,
+                            pointRadius: 4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: {
+                        legend: { position: 'top', labels: { usePointStyle: true, boxWidth: 8, font: { family: 'Inter', weight: 600 } } },
+                        tooltip: { backgroundColor: 'rgba(15, 23, 42, 0.9)', titleFont: { size: 13 }, bodyFont: { size: 13 }, padding: 12, cornerRadius: 8 }
+                    },
+                    scales: {
+                        y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.03)' }, border: { dash: [4, 4] } },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+        }
+
+        function updateChart() {
+            const scenario = document.getElementById('dataScenario').value;
+            const data = chartDatasets[scenario];
+            debounceChart.data.labels = data.labels;
+            debounceChart.data.datasets[0].data = data.raw;
+            debounceChart.data.datasets[1].data = data.processed;
+            debounceChart.update();
+            document.getElementById('chartDescription').innerText = data.desc;
+        }
+
+        window.onload = () => initChart();
+
+        // --- Live Simulation Logic ---
+        let mongoTotal = 0;
+        let pgTotal = 0;
+        let redisCacheObj = {};
+
+        function simulateSignal(component, severity) {
+            const timestamp = new Date().toLocaleTimeString();
+            const signalId = Math.random().toString(36).substr(2, 6).toUpperCase();
+
+            mongoTotal++;
+            document.getElementById('mongoCount').innerText = `${mongoTotal} Data`;
+            const mongoLogs = document.getElementById('mongoLogs');
+            if (mongoTotal === 1) mongoLogs.innerHTML = ''; 
+            
+            const logEntry = document.createElement('div');
+            logEntry.innerText = `[${timestamp}] ${component} (${severity}) - ID:${signalId}`;
+            logEntry.style.opacity = "0";
+            mongoLogs.prepend(logEntry);
+            setTimeout(() => { logEntry.style.opacity = "1"; logEntry.style.transition = "opacity 0.2s"; }, 10);
+
+            if (!redisCacheObj[component]) {
+                triggerHaptic(40);
+                pgTotal++;
+                document.getElementById('pgCount').innerText = `${pgTotal} Tickets`;
+                
+                const pgTickets = document.getElementById('pgTickets');
+                if (pgTotal === 1) pgTickets.innerHTML = ''; 
+                
+                const ticket = document.createElement('div');
+                let colorClass = severity.includes('P0') ? 'border-red-500' : 'border-amber-500';
+                ticket.className = `p-4 border-l-4 ${colorClass} bg-white rounded-xl shadow-sm border border-slate-100 text-sm animate-fade-in relative overflow-hidden`;
+                ticket.innerHTML = `
+                    <div class="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br ${severity.includes('P0') ? 'from-red-100' : 'from-amber-100'} to-transparent rounded-bl-full opacity-50"></div>
+                    <strong class="text-slate-800 text-base relative z-10">${component}</strong><br>
+                    <span class="text-xs text-slate-500 relative z-10">Status: <span class="text-sky-600 font-extrabold">OPEN</span> | ${timestamp}</span><br>
+                    <span class="text-[10px] text-slate-400 mt-2 block font-mono bg-slate-50 px-2 py-1 rounded inline-block border border-slate-100 relative z-10">INC-${signalId}</span>
+                `;
+                pgTickets.prepend(ticket);
+
+                redisCacheObj[component] = 10; 
+                updateRedisUI();
+            } else {
+                triggerHaptic(5);
+                const redisElement = document.getElementById(`redis-${component}`);
+                if(redisElement) {
+                    redisElement.classList.add('bg-red-50', 'border-red-200', 'scale-[1.03]', 'shadow-md');
+                    setTimeout(() => {
+                        if(document.getElementById(`redis-${component}`)) { 
+                            redisElement.classList.remove('bg-red-50', 'border-red-200', 'scale-[1.03]', 'shadow-md');
+                        }
+                    }, 200);
+                }
+            }
+        }
+
+        function simulateBurst(component, severity, count) {
+            let i = 0;
+            const interval = setInterval(() => {
+                simulateSignal(component, severity);
+                i++;
+                if (i >= count) clearInterval(interval);
+            }, 80); 
+        }
+
+        function updateRedisUI() {
+            const redisState = document.getElementById('redisState');
+            redisState.innerHTML = ''; 
+            let empty = true;
+            for (const [key, ttl] of Object.entries(redisCacheObj)) {
+                if (ttl > 0) {
+                    empty = false;
+                    const el = document.createElement('div');
+                    el.id = `redis-${key}`;
+                    el.className = `p-4 bg-white border border-yellow-200/60 rounded-xl shadow-sm text-sm flex justify-between items-center transition-all duration-200`;
+                    el.innerHTML = `<span class="font-bold text-slate-700">${key}</span> <span class="bg-amber-100 text-amber-800 text-xs px-2.5 py-1 rounded-full font-mono font-bold shadow-inner">TTL: ${ttl}s</span>`;
+                    redisState.appendChild(el);
+                }
+            }
+            if (empty) redisState.innerHTML = '<div class="text-slate-400 text-sm italic text-center mt-12">Cache is empty</div>';
+        }
+
+        setInterval(() => {
+            let updated = false;
+            for (const key in redisCacheObj) {
+                if (redisCacheObj[key] > 0) {
+                    redisCacheObj[key]--;
+                    updated = true;
+                } else {
+                    delete redisCacheObj[key];
+                    updated = true;
+                }
+            }
+            if (updated) updateRedisUI();
+        }, 1000);
+
+        function resetSimulation() {
+            mongoTotal = 0; pgTotal = 0; redisCacheObj = {};
+            document.getElementById('mongoCount').innerText = '0 Data';
+            document.getElementById('pgCount').innerText = '0 Tickets';
+            document.getElementById('mongoLogs').innerHTML = '<div class="text-slate-500 text-center mt-12 text-sm italic">Awaiting telemetry...</div>';
+            document.getElementById('pgTickets').innerHTML = '<div class="text-slate-400 text-sm italic text-center mt-12">No active incidents</div>';
+            updateRedisUI();
+        }
+    </script>
+</body>
+</html>
