@@ -475,10 +475,3 @@ if __name__ == "__main__":
 
 ***
 
-**Next Steps:**
-1. Paste this into GitHub.
-2. Edit the links at the very top (GitHub Repo, LinkedIn, etc.).
-3. Export to PDF and name it `V Gurunagaraj - Infrastructure / SRE Intern Assignment.pdf`.
-4. Email it to Karan Sinha! 
-
-You are entirely ready to submit. Good luck!
