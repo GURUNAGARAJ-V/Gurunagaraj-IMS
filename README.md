@@ -1,5 +1,5 @@
 
-# Zeotap Mission-Critical Incident Management System (IMS)
+# Mission-Critical Incident Management System (IMS)
 
 **Comprehensive Engineering Report & Codebase**
 
