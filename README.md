@@ -7,8 +7,8 @@
 *(Evaluator: Please refer to the links below for the live demonstration. 💡 Tip: Open the Interactive Architecture SPA on an Android phone to experience the built-in haptic feedback!)*
 
 * **👨‍💻 GitHub Repository:** https://github.com/GURUNAGARAJ-V/Gurunagaraj-Zeotap-IMS
-* **✨ Interactive Architecture SPA:** https://gurunagaraj-v.github.io/Gurunagaraj-Zeotap-IMS/interactive_report.html
-* **🌐 Live Webpage / Demo Link:** https://gurunagaraj-v.github.io/Gurunagaraj-Zeotap-IMS/frontend/index.html
+* **✨ Interactive Architecture SPA:** https://gurunagaraj-v.github.io/Gurunagaraj-IMS/interactive_report.html
+* **🌐 Live Webpage / Demo Link:** https://gurunagaraj-v.github.io/Gurunagaraj-IMS/frontend/index.html
 * **👤 Candidate Name:** V Gurunagaraj
 * **🧠 Background:** Civil Engineer | Eco-Conscious Infrastructure & IoT Innovator
 * **💼 LinkedIn:** https://www.linkedin.com/in/vgurunagarajcivilengineer/
